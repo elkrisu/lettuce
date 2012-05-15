@@ -18,6 +18,7 @@
 import os
 import sys
 from lettuce import core
+from lettuce import strings
 from lettuce.terrain import after
 from lettuce.terrain import before
 
@@ -33,6 +34,23 @@ def wrt(string):
 def print_scenario_running(scenario):
     wrt('%s ... ' % scenario.name)
 
+@after.each_feature
+def print_outline_result(feature):
+    if len(feature.scenarios[0].outlines):
+        if scenarios_and_its_fails.has_key(feature.scenarios[0]):
+            print 'FAILED'
+        else:
+            print 'OK'
+
+@after.outline
+def collect_outline_failures(scenario, order, outline, reasons_to_fail):
+    table = strings.dicts_to_string(scenario.outlines, scenario.keys)
+    lines = table.splitlines()
+    head = lines.pop(0)
+
+    if reasons_to_fail:
+        scenarios_and_its_fails[scenario] = reasons_to_fail[0]
+        failed_scenarios.append(scenario)
 
 @after.each_scenario
 def print_scenario_ran(scenario):

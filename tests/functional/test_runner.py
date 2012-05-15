@@ -539,6 +539,49 @@ def test_output_with_successful_outline_colorless():
     )
 
 @with_setup(prepare_stdout)
+def test_output_with_successful_outline_verbosity_2():
+    "With verbosity level2 output, a successful outline scenario should print needed information."
+
+    runner = Runner(feature_name('success_outline'), verbosity=2)
+    runner.run()
+
+    assert_stdout_lines(
+        'fill a web form ... OK\n'
+        '\n'
+        '1 feature (1 passed)\n'
+        '3 scenarios (3 passed)\n'
+        '24 steps (24 passed)\n'
+        '(finished within 1 seconds)\n'
+    )
+
+@with_setup(prepare_stdout)
+def test_output_with_failful_outline_verbosity_2():
+    "With verbosity level2 output, a unsuccessful outline scenario should print needed information."
+
+    runner = Runner(feature_name('fail_outline'), verbosity=2)
+    runner.run()
+
+    assert_stdout_lines(
+        'fill a web form ... FAIL\n'
+        '\n'
+        "Traceback (most recent call last):\n"
+        '  File "%(lettuce_core_file)s", line %(call_line)d, in __call__\n'
+        "    ret = self.function(self.step, *args, **kw)\n"
+        '  File "%(step_file)s", line 30, in when_i_fill_the_field_x_with_y\n'
+        "    if field == 'password' and value == 'wee-9876':  assert False\n"
+        "AssertionError\n"
+        '\n'
+        '1 feature (0 passed)\n'
+        '3 scenarios (2 passed)\n'
+        '24 steps (1 failed, 4 skipped, 19 passed)\n'
+        '(finished within 1 seconds)\n' % {
+            'lettuce_core_file': lettuce_path('core.py'),
+            'step_file': abspath(lettuce_path('..', 'tests', 'functional', 'output_features', 'fail_outline', 'fail_outline_steps.py')),
+            'call_line':call_line,
+        }
+    )
+
+@with_setup(prepare_stdout)
 def test_output_with_successful_outline_colorful():
     "With colored output, a successful outline scenario should print beautifully."
 
